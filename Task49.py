@@ -1,5 +1,4 @@
-import os
-import tempfile
+
 
 def ask_data():
     s_name = input("Введите фамилию: ")
