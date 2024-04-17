@@ -1,3 +1,6 @@
+import os
+import tempfile
+
 def ask_data():
     s_name = input("Введите фамилию: ")
     f_name = input("Введите имя: ")
@@ -30,7 +33,7 @@ def open_phonebook():
 def find_contact():
     # print(f"Поиск по:\n1 имени\n2 фамилии\n3 отчеству\n4 номеру\n0 выход")
     title = ["Фамилия", "Имя", "Отчество", "Телефон"]
-    s_name = input("Введите фамилию: ")
+    s_name = input("Введите фамилию: ").lower()
     n_line = []
     # counter = 0
     with open('phonebook.txt', 'r', encoding='utf-8') as file:
@@ -38,47 +41,107 @@ def find_contact():
         for counter, line in enumerate(file):
             line = line.split()
             # counter += 1
-            if s_name in line[0]:
+            if s_name in line[0].lower():
                 n_line.append(counter)
                 print("\t\t".join(line))
     print(n_line)
     return n_line
 
+def delete_contact():
+    s_name = input("Введите фамилию для удаления: ").lower()
+    lines_to_delete = []
+    lines = []
+    with open('phonebook.txt', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        for i, line in enumerate(lines):
+            if s_name in line.split(";")[0].lower():
+                lines_to_delete.append((i, line))
+        if lines_to_delete:
+            for i, line in lines_to_delete:
+                print(f"{i + 1}: {line}")
+            line_number = int(input("Введите номер строки для удаления: ")) - 1
+            if line_number < len(lines):
+                lines.pop(line_number)
+                with open('phonebook.txt', 'w', encoding='utf-8') as file:
+                    file.writelines(lines)
+                print(f"Контакт с фамилией {s_name} удален.")
+            else:
+                print("Неверный номер строки.")
+        else:
+            print("Контакт с такой фамилией не найден.")
 # def delete_contact():
 # # s_name = input("Введите фамилию: ")
 # # with open('phonebook.txt', 'w', encoding='utf-8') as file:
 # print(find_contact())
 
 def copy_contact():
-    print ("\t")
-    print ("Фамилия", "Имя", "Отчество", "Телефон")
+    s_name = input("Введите фамилию контакта, который вы хотите скопировать: ").lower()
     with open('phonebook.txt', 'r', encoding='utf-8') as file:
         lines = file.readlines()
-        for i, line in enumerate(lines):
-            print(f"{i + 1}: {line}", end="")
-    line_number = int(input("\nВведите номер строки для копирования: ")) - 1
-    if line_number < len(lines):
-        target_file = f"copy_contact_{line_number + 1}.txt"
-        with open(target_file, 'a', encoding='utf-8') as target:
-            target.write(lines[line_number])
-        print(f"Контакт из строки {line_number + 1} скопирован в {target_file}.")
+    matching_lines = []
+    for i, line in enumerate(lines):
+        if s_name in line.split(";")[0].lower():
+            print(f"Строка {i + 1}: {line}", end="")
+            matching_lines.append((i, line))
+    if matching_lines:
+        line_number = int(input("\nВведите номер строки для копирования: ")) - 1
+        if line_number < len(lines):
+            target_file = f"copy_contact_{line_number + 1}.txt"
+            with open(target_file, 'a', encoding='utf-8') as target:
+                target.write(lines[line_number])
+            print(f"Контакт из строки {line_number + 1} скопирован в {target_file}.")
+        else:
+            print("Неверный номер строки.")
     else:
-        print("Неверный номер строки.")
+        print("Контакт с такой фамилией не найден.")
         
+def edit_contact():
+    s_name = input("Введите фамилию контакта, который вы хотите отредактировать: ").lower()
+    with open('phonebook.txt', 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+    matching_lines = []
+    for i, line in enumerate(lines):
+        if s_name in line.split(";")[0].lower():
+            print(f"Строка {i + 1}: {line}", end="")
+            matching_lines.append((i, line))
+    if matching_lines:
+        line_number = int(input("\nВведите номер строки для редактирования: ")) - 1
+        if line_number < len(lines):
+            print(f"Вы выбрали для редактирования контакт: {lines[line_number]}")
+            print("Выберите поле для редактирования:")
+            print("1. Фамилия\n2. Имя\n3. Отчество\n4. Номер телефона")
+            field_number = int(input("> ")) - 1
+            new_data = input("Введите новые данные: ")
+            contact_info = lines[line_number].split(";")
+            contact_info[field_number] = new_data
+            lines[line_number] = ';'.join(contact_info) + '\n'
+            with open('phonebook.txt', 'w', encoding='utf-8') as file:
+                file.writelines(lines)
+            print(f"Контакт в строке {line_number + 1} был отредактирован.")
+        else:
+            print("Неверный номер строки.")
+    else:
+        print("Контакт с такой фамилией не найден.")
+# def delete_contact():
+   
         
 
 def main():
     isStop = 1
     while isStop != 0:
-        print(f"Выберете что хотите сделать:\n1 найти\n2 добавить\n3 удалить\n4 открыть всю книгу\n5 копирование\n0 выход")
+        print(f"Выберете что хотите сделать:\n1 найти\n2 добавить\n3 удалить\n4 открыть всю книгу\n5 копирование\n6 редактировать\n0 выход")
         isStop = int(input(">"))
         if isStop == 1:
             find_contact()
         elif isStop == 2:
             add_new_contact()
+        elif isStop == 3:
+            delete_contact()
         elif isStop == 4:
             open_phonebook()
         elif isStop == 5:
             copy_contact()
+        elif isStop == 6:
+            edit_contact()
         input("Нажмите Enter чтобы продолжить")
 main()
