@@ -17,7 +17,7 @@ def add_new_contact():
     contact = ask_data()
     with open('phonebook.txt', 'a', encoding='utf-8') as file:
         for value in contact.values():
-            file.write(value, delimiter=';')
+            file.write(value +';')
         file.write('\n')
 # return True
 
@@ -59,7 +59,7 @@ def delete_contact():
             for i, line in lines_to_delete:
                 print(f"{i + 1}: {line}")
             line_number = int(input("Введите номер строки для удаления: ")) - 1
-            if line_number < len(lines):
+            if line_number >= 0 and line_number in [item[0] for item in lines_to_delete]:
                 lines.pop(line_number)
                 with open('phonebook.txt', 'w', encoding='utf-8') as file:
                     file.writelines(lines)
@@ -68,10 +68,7 @@ def delete_contact():
                 print("Неверный номер строки.")
         else:
             print("Контакт с такой фамилией не найден.")
-# def delete_contact():
-# # s_name = input("Введите фамилию: ")
-# # with open('phonebook.txt', 'w', encoding='utf-8') as file:
-# print(find_contact())
+
 
 def copy_contact():
     s_name = input("Введите фамилию контакта, который вы хотите скопировать: ").lower()
@@ -84,7 +81,7 @@ def copy_contact():
             matching_lines.append((i, line))
     if matching_lines:
         line_number = int(input("\nВведите номер строки для копирования: ")) - 1
-        if line_number < len(lines):
+        if line_number >= 0 and line_number in [item[0] for item in matching_lines]:
             target_file = f"copy_contact_{line_number + 1}.txt"
             with open(target_file, 'a', encoding='utf-8') as target:
                 target.write(lines[line_number])
@@ -121,9 +118,8 @@ def edit_contact():
             print("Неверный номер строки.")
     else:
         print("Контакт с такой фамилией не найден.")
-# def delete_contact():
+
    
-        
 
 def main():
     isStop = 1
